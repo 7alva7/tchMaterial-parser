@@ -87,7 +87,6 @@ body:
       description: |
         请把完整的错误提示文字粘贴在这里（**不要只发截图的一角**），也可以直接把截图拖进本输入框。
         ⚠️ **请勿粘贴您的 Access Token**，它等同于您的账号密码。
-      render: text
 
   - type: textarea
     id: extra
