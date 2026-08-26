@@ -98,27 +98,7 @@ yay -S tchmaterial-parser
 
 ### 从源码运行
 
-若您想体验最新的改动，或是希望参与开发，可以直接从源码运行本工具，需要 **Python 3.10 或更高版本**（`X | Y` 形式的类型注解仅在该版本及以后的版本可用）。
-
-```sh
-git clone https://github.com/happycola233/tchMaterial-parser.git
-cd tchMaterial-parser
-pip install .
-python ./src/main.py
-```
-
-> [!NOTE]
-> 本工具使用 Tkinter 构建图形界面。Windows 与 macOS 的官方 Python 通常已自带，而部分 Linux 发行版需要单独安装，例如在 Debian/Ubuntu 上执行 `sudo apt install python3-tk`。
->
-> 此外，精简安装的 Linux 系统可能缺少中文字体与 Emoji 字体，此时界面上可能会出现方框等异常现象。可按需安装，例如在 Debian/Ubuntu 上执行 `sudo apt install fonts-noto-cjk fonts-noto-color-emoji`。
-
-若您想自行打包为可执行文件，可以在安装 `pyinstaller` 后执行：
-
-```sh
-pyinstaller ./tchMaterial-parser.spec
-```
-
-编译后的程序位于 `dist` 目录中。
+若您想体验最新的改动，或是希望参与开发，可以直接从源码运行本工具，详见[贡献者指南](./CONTRIBUTING.md#本地开发)。
 
 ## 🛠️ 使用方法
 
@@ -174,7 +154,7 @@ https://basic.smartedu.cn/tchMaterial/detail?contentType=assets_document&content
    })();
    ```
 
-4. 复制控制台输出的 **整段 JSON**，然后在本工具中点击 “**设置 Token**” 按钮，粘贴并保存。
+4. 复制控制台输出的**整段 JSON**，然后在本工具中点击 “**设置 Token**” 按钮，粘贴并保存。
 
 > [!NOTE]
 > Access Token 可能会过期，若下载失败，请重新获取并设置新的 Token。
@@ -241,9 +221,11 @@ https://basic.smartedu.cn/tchMaterial/detail?contentType=assets_document&content
 </a>
 </div>
 
-## 🤝 贡献指南
+## 🤝 参与贡献
 
 如果您发现 Bug 或有改进建议，欢迎提交 **[Issue](../../issues)** 或 **[Pull Request](../../pulls)**，让我们一起完善本工具！
+
+参与开发前，建议先阅读[贡献者指南](./CONTRIBUTING.md)，了解本地开发、测试检查、Pull Request 与合规边界说明。
 
 感谢所有为本项目做出贡献的朋友：
 
