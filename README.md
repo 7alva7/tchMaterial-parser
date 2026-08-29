@@ -81,7 +81,7 @@
 在 **Windows 10、Windows 11 与 Windows Server 2025** 上，您可以直接在终端中输入以下命令来安装本程序：
 
 ```batch
-winget install tchMaterial-parser
+winget install happycola233.tchMaterial-parser
 ```
 
 感谢 [@PtJade-Ceramic](https://github.com/PtJade-Ceramic) 的建议（[#64](../../issues/64)）！
