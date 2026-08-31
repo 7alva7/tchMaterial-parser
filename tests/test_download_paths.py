@@ -3,7 +3,11 @@ import tempfile
 import unittest
 
 from src.tchmaterial_parser.api import ResourceInfo
-from src.tchmaterial_parser.ui.download_panel import allocate_download_paths
+from src.tchmaterial_parser.ui.download_panel import (
+    allocate_download_paths,
+    download_filename,
+    sanitize_filename,
+)
 
 
 def resource(
@@ -75,6 +79,77 @@ class DownloadPathTest(unittest.TestCase):
             paths = allocate_download_paths(resources, directory)
 
         self.assertEqual([os.path.basename(path) for path in paths], ["已有教材 (2).pdf", "未完成教材 (2).pdf"])
+
+    def test_issue_86_replaces_windows_illegal_filename_characters(self) -> None:
+        resources = [
+            resource(
+                "（根据2022年版课程标准修订）义务教育教科书英语九年级上册 - Unit 3 Understanding ideas_2 Read the speech. What does the title mean?",
+                "audio-1",
+                file_format="mp3",
+            ),
+            resource(
+                "（根据2022年版课程标准修订）义务教育教科书英语九年级上册 - Unit 4 Understanding ideas_2 Read the passage. What is the writer's relationship with Zhao Yiman?",
+                "audio-2",
+                file_format="mp3",
+            ),
+            resource("听力 * 跟读 1/2", "audio-3", file_format="mp3"),
+        ]
+
+        with tempfile.TemporaryDirectory() as directory:
+            paths = allocate_download_paths(resources, directory)
+            names = [os.path.basename(path) for path in paths]
+            self.assertEqual(names, [
+                "（根据2022年版课程标准修订）义务教育教科书英语九年级上册 - Unit 3 Understanding ideas_2 Read the speech. What does the title mean？.mp3",
+                "（根据2022年版课程标准修订）义务教育教科书英语九年级上册 - Unit 4 Understanding ideas_2 Read the passage. What is the writer's relationship with Zhao Yiman？.mp3",
+                "听力 ＊ 跟读 1／2.mp3",
+            ])
+            for path in paths:
+                with open(f"{path}.tmp", "wb") as file:
+                    file.write(b"ok")
+
+    def test_fullwidth_replacements_keep_distinct_punctuation_apart(self) -> None:
+        resources = [
+            resource("同名教材?", "book-1"),
+            resource("同名教材*", "book-2"),
+        ]
+
+        with tempfile.TemporaryDirectory() as directory:
+            paths = allocate_download_paths(resources, directory)
+
+        self.assertEqual([os.path.basename(path) for path in paths], [
+            "同名教材？.pdf",
+            "同名教材＊.pdf",
+        ])
+
+    def test_sanitized_titles_that_collide_still_get_a_sequence(self) -> None:
+        resources = [
+            resource("同名教材?", "book-1"),
+            resource("同名教材？", "book-2"),
+        ]
+
+        with tempfile.TemporaryDirectory() as directory:
+            paths = allocate_download_paths(resources, directory)
+
+        self.assertEqual([os.path.basename(path) for path in paths], [
+            "同名教材？.pdf",
+            "同名教材？ (2).pdf",
+        ])
+
+
+class SanitizeFilenameTest(unittest.TestCase):
+    def test_uses_fullwidth_punctuation_and_strips_trailing_dots(self) -> None:
+        self.assertEqual(sanitize_filename('a<>:"/\\|?*b'), "a＜＞：＂／＼｜？＊b")
+        self.assertEqual(sanitize_filename("结束."), "结束")
+        self.assertEqual(sanitize_filename("???"), "？？？")
+        self.assertEqual(sanitize_filename("..."), "download")
+
+    def test_prefixes_windows_reserved_device_names(self) -> None:
+        self.assertEqual(sanitize_filename("CON.mp3"), "_CON.mp3")
+        self.assertEqual(sanitize_filename("nul"), "_nul")
+
+    def test_download_filename_sanitizes_title_but_keeps_extension(self) -> None:
+        info = resource("What does the title mean?", "audio-1", file_format="mp3")
+        self.assertEqual(download_filename(info), "What does the title mean？.mp3")
 
 
 if __name__ == "__main__":

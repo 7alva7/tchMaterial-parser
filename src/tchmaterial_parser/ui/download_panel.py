@@ -137,8 +137,39 @@ def download_failure_reason(response, attempted_urls: list[str]) -> str:
         reason += f"，已尝试 {len(attempted_urls)} 个下载镜像"
     return reason
 
+# Windows 禁止在文件名中使用半角 ? * : / 等；改为对应全角字符，尽量保留原标题读法（#86）。
+_INVALID_FILENAME_REPLACEMENTS = str.maketrans({
+    "<": "＜",
+    ">": "＞",
+    ":": "：",
+    '"': "＂",
+    "/": "／",
+    "\\": "＼",
+    "|": "｜",
+    "?": "？",
+    "*": "＊",
+})
+_CONTROL_FILENAME_CHARS = re.compile(r"[\x00-\x1f]")
+_WINDOWS_RESERVED_NAMES = frozenset({
+    "CON", "PRN", "AUX", "NUL",
+    *(f"COM{i}" for i in range(10)),
+    *(f"LPT{i}" for i in range(10)),
+})
+
+def sanitize_filename(filename: str) -> str:
+    """将非法文件名字符换成全角对应字符，并避开 Windows 保留设备名。"""
+    filename = _CONTROL_FILENAME_CHARS.sub("_", filename.translate(_INVALID_FILENAME_REPLACEMENTS))
+    filename = filename.rstrip(" .")
+    if not filename:
+        return "download"
+
+    stem, extension = os.path.splitext(filename)
+    if stem.upper() in _WINDOWS_RESERVED_NAMES:
+        return f"_{stem}{extension}"
+    return filename
+
 def download_filename(resource: ResourceInfo) -> str:
-    return f"{resource.title or 'download'}.{resource.file_format}"
+    return sanitize_filename(f"{resource.title or 'download'}.{resource.file_format}")
 
 def filename_key(filename: str) -> str:
     """以跨平台保守方式比较文件名，提前避开 Windows/macOS 上的大小写冲突。"""
@@ -153,7 +184,7 @@ def allocate_download_paths(resources: list[ResourceInfo], directory: str) -> li
     for resource, filename in zip(resources, base_filenames):
         # 例如人教版与北师大版的“普通高中教科书·英语必修 第三册”同名时，优先使用易读的版别前缀区分。
         if base_counts[filename_key(filename)] > 1 and resource.edition:
-            filename = f"[{resource.edition}] {filename}"
+            filename = sanitize_filename(f"[{resource.edition}] {filename}")
         edition_filenames.append(filename)
 
     reserved_paths: set[str] = set()
@@ -258,7 +289,7 @@ def download() -> None: # 下载资源文件
             save_path = filedialog.asksaveasfilename( # 选择保存路径
                 defaultextension=f".{resource.file_format}",
                 filetypes=[(f"{resource.file_format.upper()} 文件", f"*.{resource.file_format}"), ("所有文件", "*.*")],
-                initialfile=resource.title or "download",
+                initialfile=sanitize_filename(resource.title or "download"),
             )
             if not save_path: # 用户取消了文件保存操作
                 download_btn.config(state="normal") # 恢复下载按钮为启用状态
