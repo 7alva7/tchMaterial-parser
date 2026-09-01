@@ -20,7 +20,8 @@ a = Analysis(
     pathex=['src'],
     binaries=[],
     datas=data_files,
-    hiddenimports=[],
+    # Pillow 的 _imagingtk 在非 Windows 平台通过 C 层动态导入此模块，PyInstaller 无法静态发现
+    hiddenimports=["PIL._tkinter_finder"],
     hookspath=[],
     hooksconfig={},
     runtime_hooks=[],
