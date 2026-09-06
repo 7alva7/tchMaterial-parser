@@ -16,6 +16,8 @@ from ..auth import format_token_json
 ACCESS_TOKEN_LOGIN_URL = "https://auth.smartedu.cn/uias/login"
 # 凭据在 ND_UC_AUTH-{sdpAppId}&ncet-xedu&token。同一前缀下还有 sdk_cache
 # （账号资料，正是 #89 贴出的内容），不能用 startsWith 取第一项。
+# 凭据在 ND_UC_AUTH-{sdpAppId}&ncet-xedu&token。同一前缀下还有 sdk_cache
+# （账号资料，正是 #89 贴出的内容），不能用 startsWith 取第一项。
 ACCESS_TOKEN_SCRIPT = """\
 (function () {
   const authKey = Object.keys(localStorage).find(
