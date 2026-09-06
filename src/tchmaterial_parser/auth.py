@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 # 官网 UC SDK 的 X-ND-AUTH 生成，以及用户粘贴登录凭据时的 JSON 校验
 #
-# 官网在登录后把凭据写入 localStorage 的 ND_UC_AUTH-* ，页面里的 getAuthHeader /
+# 官网在登录后把凭据写入 localStorage 的 ND_UC_AUTH-*&token ；同前缀的
+# sdk_cache 只是账号资料缓存。页面里的 getAuthHeader /
 # getAuthHeaderAsync 每次请求都会现算签名，而不是复用抓包里的一整段头。
 # 对应实现大致是：
 #   Fe(diff)  -> nonce = (Date.now() + diff) + ":" + Ze(8)
