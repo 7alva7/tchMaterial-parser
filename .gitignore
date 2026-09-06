@@ -32,6 +32,9 @@ htmlcov/
 Thumbs.db
 Desktop.ini
 
+# Playwright CLI session artifacts (may contain page state)
+.playwright-cli/
+
 # Project local temp data
 .tmp/
 tmp/

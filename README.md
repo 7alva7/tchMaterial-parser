@@ -132,8 +132,8 @@ https://basic.smartedu.cn/tchMaterial/detail?contentType=assets_document&content
 
    ```js
    (function () {
-     const authKey = Object.keys(localStorage).find((key) =>
-       key.startsWith("ND_UC_AUTH"),
+     const authKey = Object.keys(localStorage).find(
+       (key) => key.startsWith("ND_UC_AUTH-") && key.endsWith("&token"),
      );
      if (!authKey) {
        console.error("未找到登录凭据，请确保已登录！");
@@ -158,6 +158,8 @@ https://basic.smartedu.cn/tchMaterial/detail?contentType=assets_document&content
 
 > [!NOTE]
 > Access Token 可能会过期，若下载失败，请重新获取并设置新的 Token。
+>
+> 登录后的 `localStorage` 里还有 `ND_UC_AUTH-…&sdk_cache`（账号资料缓存），里面没有 Token。请运行上面的脚本，不要从开发者工具的 Application 面板里随便复制一项。
 
 ### 3. 🚀 开始下载
 
