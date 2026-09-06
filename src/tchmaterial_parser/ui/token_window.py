@@ -18,22 +18,18 @@ ACCESS_TOKEN_LOGIN_URL = "https://auth.smartedu.cn/uias/login"
 ACCESS_TOKEN_SCRIPT = """\
 (function () {
   const authKey = Object.keys(localStorage).find(
-    (key) => key.startsWith("ND_UC_AUTH")
+    key => /^ND_UC_AUTH-[^&]+&[^&]+&token$/.test(key),
   );
   if (!authKey) {
     console.error("未找到登录凭据，请确保已登录！");
     return;
   }
   const tokenData = JSON.parse(localStorage.getItem(authKey));
-  const value = JSON.parse(tokenData.value);
-  const credentials = JSON.stringify({
-    access_token: value.access_token,
-    mac_key: value.mac_key,
-    diff: value.diff,
-  });
+  const { access_token, mac_key, diff } = JSON.parse(tokenData.value);
+  const credentials = JSON.stringify({ access_token, mac_key, diff });
   console.log(
     "%c请复制下面整段 JSON 并粘贴到下载工具：",
-    "color: green; font-weight: bold"
+    "color: green; font-weight: bold",
   );
   console.log(credentials);
 })();"""
@@ -57,7 +53,7 @@ def show_access_token_window() -> None: # 打开输入 Access Token 的窗口
     label.pack(anchor="w")
     hint_label = ttk.Label(
         frame,
-        text="请先点击左下角“如何获取？”查看操作步骤，再把控制台输出的整段 JSON 粘贴到下方。凭据仅保存在本机；留空并保存即可清除。",
+        text="请先点击左下角 “如何获取？” 查看操作步骤，再把控制台输出的整段 JSON 粘贴到下方。凭据仅保存在本机；留空并保存即可清除。",
         style="Caption.TLabel",
         wraplength=scaled(360),
         justify="left",
@@ -67,7 +63,7 @@ def show_access_token_window() -> None: # 打开输入 Access Token 的窗口
     # 创建多行 Text（外面套一层卡片，以获得与其他控件一致的圆角边框）
     token_card = ttk.Frame(frame, style="Card.TFrame")
     token_card.pack(fill="both", expand=True)
-    token_text = tk.Text(token_card, width=50, height=6, wrap="char", undo=True, font="AppBodyFont", padx=scaled(6), pady=scaled(4))
+    token_text = tk.Text(token_card, width=50, height=7, wrap="char", undo=True, font="AppBodyFont", padx=scaled(6), pady=scaled(4))
     token_text.pack(fill="both", expand=True)
     register_themed_widget(token_text)
     bind_context_menu(token_text)
@@ -190,18 +186,18 @@ def show_access_token_window() -> None: # 打开输入 Access Token 的窗口
         add_step(
             "2",
             "打开浏览器控制台",
-            "按 F12 或 Ctrl + Shift + I，也可以右键页面并选择“检查”；然后切换到“控制台（Console）”。",
+            "按 F12 或 Ctrl + Shift + I，也可以右键页面并选择 “检查”；然后切换到 “控制台（Console）”。",
         )
         paste_step = add_step(
             "3",
             "复制并运行脚本",
-            "点击“复制代码”，粘贴到浏览器控制台，然后按 Enter 运行。只需复制下面代码框中的内容。",
+            "点击 “复制代码”，粘贴到浏览器控制台，然后按 Enter 运行。只需复制下面代码框中的内容。",
         )
         ttk.Label(
             paste_step,
             text=(
                 "控制台阻止粘贴？这是浏览器的安全机制。本脚本只读取当前页面的本地登录数据并输出 Token；"
-                "确认后，必须用键盘手动输入黄色提示要求的短语（如“allow pasting”或“允许粘贴”，"
+                "确认后，必须用键盘手动输入黄色提示要求的短语（如 “allow pasting” 或 “允许粘贴”，"
                 "以实际提示为准），按 Enter 后再重新粘贴。"
             ),
             style="TokenHelpWarning.TLabel",
@@ -211,7 +207,7 @@ def show_access_token_window() -> None: # 打开输入 Access Token 的窗口
 
         # 代码与说明分离，用户可以清楚看到唯一需要复制到控制台的内容。
         code_card = ttk.Frame(help_frame, style="Card.TFrame", padding=(scaled(14), scaled(12)))
-        code_card.pack(fill="both", expand=True, padx=(scaled(28), 0))
+        code_card.pack(fill="both", expand=True, padx=(scaled(20), 0))
 
         # Card.TFrame 自带边框，只用于最外层卡片；内部容器使用无边框样式，避免出现重叠细线。
         code_header = ttk.Frame(code_card, style="TokenHelpCard.TFrame")
@@ -250,12 +246,12 @@ def show_access_token_window() -> None: # 打开输入 Access Token 的窗口
         # Cascadia Mono 的代码字形更清晰美观；系统未安装时保留 TkFixedFont 原有的字体回退逻辑。
         code_font = tkfont.nametofont("TkFixedFont").copy()
         if "Cascadia Mono" in tkfont.families(help_win):
-            code_font.configure(family="Cascadia Mono")
+            code_font.configure(family="Cascadia Mono", size=-scaled(12))
 
         code_text = tk.Text(
             code_card,
             width=78,
-            height=14,
+            height=17,
             wrap="none",
             font=code_font,
             padx=scaled(10),
@@ -270,7 +266,7 @@ def show_access_token_window() -> None: # 打开输入 Access Token 的窗口
         bind_context_menu(code_text, "readonly")
 
         result_card = ttk.Frame(help_frame, style="Card.TFrame", padding=(scaled(14), scaled(11)))
-        result_card.pack(fill="x", padx=(scaled(28), 0), pady=(scaled(12), 0))
+        result_card.pack(fill="x", padx=(scaled(20), 0), pady=(scaled(12), 0))
         ttk.Label(
             result_card,
             text="运行后，复制控制台输出的整段 JSON",

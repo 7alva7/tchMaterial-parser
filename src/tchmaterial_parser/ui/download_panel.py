@@ -182,7 +182,7 @@ def allocate_download_paths(resources: list[ResourceInfo], directory: str) -> li
 
     edition_filenames: list[str] = []
     for resource, filename in zip(resources, base_filenames):
-        # 例如人教版与北师大版的“普通高中教科书·英语必修 第三册”同名时，优先使用易读的版别前缀区分。
+        # 例如人教版与北师大版的 “普通高中教科书·英语必修 第三册” 同名时，优先使用易读的版别前缀区分。
         if base_counts[filename_key(filename)] > 1 and resource.edition:
             filename = sanitize_filename(f"[{resource.edition}] {filename}")
         edition_filenames.append(filename)
@@ -194,7 +194,7 @@ def allocate_download_paths(resources: list[ResourceInfo], directory: str) -> li
         stem, extension = os.path.splitext(candidate)
         sequence = 2
 
-        # 同时检查最终文件和可辨识的“最终文件.tmp”；后者可能属于另一个仍在运行的程序实例。
+        # 同时检查最终文件和可辨识的 “最终文件.tmp”；后者可能属于另一个仍在运行的程序实例。
         while (
             filename_key(candidate) in reserved_paths
             or os.path.exists(candidate)

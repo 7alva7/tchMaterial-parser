@@ -115,7 +115,7 @@ https://basic.smartedu.cn/tchMaterial/detail?contentType=assets_document&content
 ### 2. 🔑 设置 Access Token（可选）
 
 > [!TIP]
-> 自 v3.1 版本起，这一步操作已经**不再必要**，当未设置 Access Token 时工具会使用其他方法下载资源。然而，这一方法**并不长期有效**，因此仍然建议您进行这一步操作。
+> 此操作**不是必要的**，当未设置 Access Token 时工具会使用其他方法下载资源，但这一方法**并不长期有效**，因此仍然建议您执行这一步操作。
 
 > [!WARNING]
 > 友情提示：
@@ -132,20 +132,16 @@ https://basic.smartedu.cn/tchMaterial/detail?contentType=assets_document&content
 
    ```js
    (function () {
-     const authKey = Object.keys(localStorage).find((key) =>
-       key.startsWith("ND_UC_AUTH"),
+     const authKey = Object.keys(localStorage).find(
+       key => /^ND_UC_AUTH-[^&]+&[^&]+&token$/.test(key),
      );
      if (!authKey) {
        console.error("未找到登录凭据，请确保已登录！");
        return;
      }
      const tokenData = JSON.parse(localStorage.getItem(authKey));
-     const value = JSON.parse(tokenData.value);
-     const credentials = JSON.stringify({
-       access_token: value.access_token,
-       mac_key: value.mac_key,
-       diff: value.diff,
-     });
+     const { access_token, mac_key, diff } = JSON.parse(tokenData.value);
+     const credentials = JSON.stringify({ access_token, mac_key, diff });
      console.log(
        "%c请复制下面整段 JSON 并粘贴到下载工具：",
        "color: green; font-weight: bold",

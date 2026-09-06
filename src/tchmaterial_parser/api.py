@@ -16,7 +16,7 @@ class ResourceInfo(NamedTuple):
     edition: str | None = None
 
 def get_edition_name(resource_data: dict) -> str | None:
-    """读取资源分类中的教材版别，例如“人教版”“北师大版”。"""
+    """读取资源分类中的教材版别，例如 “人教版”“北师大版”。"""
     for tag in resource_data.get("tag_list") or []:
         if tag.get("tag_dimension_id") == "zxxbb" and tag.get("tag_name"):
             return tag["tag_name"]
@@ -27,8 +27,8 @@ def combine_resource_title(root_title: str | None, resource_title: str) -> str:
     if not root_title:
         return resource_title
 
-    # 例如“体育与健康教师用书 基本运动技能（全一册）”的专题父记录与内部 PDF 标题相同；
-    # 先折叠连续空白再比较，命中时保留子资源原文，避免生成“标题 - 标题”的超长文件名。
+    # 例如 “体育与健康教师用书 基本运动技能（全一册）” 的专题父记录与内部 PDF 标题相同；
+    # 先折叠连续空白再比较，命中时保留子资源原文，避免生成 “标题 - 标题” 的超长文件名。
     normalized_root = " ".join(root_title.split()).casefold()
     normalized_resource = " ".join(resource_title.split()).casefold()
     if normalized_root == normalized_resource:
